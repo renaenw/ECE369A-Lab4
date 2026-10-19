@@ -58,19 +58,15 @@ module Controller(Instruction, RegWrite, MemtoReg, MemRead, MemWrite, MemSize,
     wire [5:0] Funct  = Instruction[5:0];
     wire [4:0] Rt     = Instruction[20:16];
 
-    // ALUControl encoding
     localparam ALU_AND = 4'd0, ALU_OR  = 4'd1, ALU_ADD = 4'd2, ALU_SLL = 4'd3,
                ALU_SRL = 4'd4, ALU_SUB = 4'd5, ALU_SLT = 4'd6, ALU_NOR = 4'd7,
                ALU_XOR = 4'd8, ALU_MUL = 4'd9;
 
-    // BranchType encoding
     localparam BR_BEQ = 3'd0, BR_BNE = 3'd1, BR_BGEZ = 3'd2,
                BR_BGTZ = 3'd3, BR_BLEZ = 3'd4, BR_BLTZ = 3'd5;
 
-    // MemSize encoding
     localparam SIZE_WORD = 2'b00, SIZE_HALF = 2'b01, SIZE_BYTE = 2'b10;
 
-    // Opcodes
     localparam OP_RTYPE = 6'b000000, OP_REGIMM = 6'b000001, OP_SPECIAL2 = 6'b011100,
                OP_J     = 6'b000010, OP_JAL    = 6'b000011,
                OP_BEQ   = 6'b000100, OP_BNE    = 6'b000101,
@@ -80,18 +76,14 @@ module Controller(Instruction, RegWrite, MemtoReg, MemRead, MemWrite, MemSize,
                OP_LB    = 6'b100000, OP_LH     = 6'b100001, OP_LW   = 6'b100011,
                OP_SB    = 6'b101000, OP_SH     = 6'b101001, OP_SW   = 6'b101011;
 
-    // R-type function codes
     localparam FN_SLL = 6'b000000, FN_SRL = 6'b000010, FN_JR  = 6'b001000,
                FN_ADD = 6'b100000, FN_SUB = 6'b100010, FN_AND = 6'b100100,
                FN_OR  = 6'b100101, FN_XOR = 6'b100110, FN_NOR = 6'b100111,
                FN_SLT = 6'b101010;
 
-    // SPECIAL2 function code
     localparam FN_MUL = 6'b000010;
 
     always @(*) begin
-        // Defaults: every output is assigned before the case so no latch is
-        // inferred, and anything not decoded below behaves as a nop.
         RegWrite   = 1'b0;
         MemtoReg   = 1'b0;
         MemRead    = 1'b0;
@@ -120,7 +112,6 @@ module Controller(Instruction, RegWrite, MemtoReg, MemRead, MemWrite, MemSize,
                     FN_XOR: begin RegWrite = 1'b1; ALUControl = ALU_XOR; end
                     FN_SLT: begin RegWrite = 1'b1; ALUControl = ALU_SLT; end
                     FN_SLL: begin
-                        // all-zero instruction is a nop: leave RegWrite at 0
                         RegWrite   = (Instruction != 32'd0);
                         ShiftSrc   = 1'b1;
                         ALUControl = ALU_SLL;
@@ -146,35 +137,29 @@ module Controller(Instruction, RegWrite, MemtoReg, MemRead, MemWrite, MemSize,
                 end
             end
 
-            // Immediate arithmetic and logical
             OP_ADDI: begin RegWrite = 1'b1; ALUSrc = 1'b1; ALUControl = ALU_ADD; end
             OP_SLTI: begin RegWrite = 1'b1; ALUSrc = 1'b1; ALUControl = ALU_SLT; end
             OP_ANDI: begin RegWrite = 1'b1; ALUSrc = 1'b1; ZeroExt = 1'b1; ALUControl = ALU_AND; end
             OP_ORI:  begin RegWrite = 1'b1; ALUSrc = 1'b1; ZeroExt = 1'b1; ALUControl = ALU_OR;  end
             OP_XORI: begin RegWrite = 1'b1; ALUSrc = 1'b1; ZeroExt = 1'b1; ALUControl = ALU_XOR; end
 
-            // Loads: address = rs + sign extended offset
             OP_LW: begin RegWrite = 1'b1; MemtoReg = 1'b1; MemRead = 1'b1; ALUSrc = 1'b1; MemSize = SIZE_WORD; end
             OP_LH: begin RegWrite = 1'b1; MemtoReg = 1'b1; MemRead = 1'b1; ALUSrc = 1'b1; MemSize = SIZE_HALF; end
             OP_LB: begin RegWrite = 1'b1; MemtoReg = 1'b1; MemRead = 1'b1; ALUSrc = 1'b1; MemSize = SIZE_BYTE; end
 
-            // Stores
             OP_SW: begin MemWrite = 1'b1; ALUSrc = 1'b1; MemSize = SIZE_WORD; end
             OP_SH: begin MemWrite = 1'b1; ALUSrc = 1'b1; MemSize = SIZE_HALF; end
             OP_SB: begin MemWrite = 1'b1; ALUSrc = 1'b1; MemSize = SIZE_BYTE; end
 
-            // Branches: the condition is evaluated in the EX stage
             OP_BEQ:  begin Branch = 1'b1; BranchType = BR_BEQ;  ALUControl = ALU_SUB; end
             OP_BNE:  begin Branch = 1'b1; BranchType = BR_BNE;  ALUControl = ALU_SUB; end
             OP_BGTZ: begin Branch = 1'b1; BranchType = BR_BGTZ; end
             OP_BLEZ: begin Branch = 1'b1; BranchType = BR_BLEZ; end
             OP_REGIMM: begin
-                // rt field picks between bgez (00001) and bltz (00000)
                 if (Rt == 5'b00001) begin Branch = 1'b1; BranchType = BR_BGEZ; end
                 else if (Rt == 5'b00000) begin Branch = 1'b1; BranchType = BR_BLTZ; end
             end
 
-            // Jumps
             OP_J:   Jump = 1'b1;
             OP_JAL: begin
                 Jump     = 1'b1;
@@ -183,7 +168,7 @@ module Controller(Instruction, RegWrite, MemtoReg, MemRead, MemWrite, MemSize,
                 RegDst   = 2'b10;
             end
 
-            default: ;  // unknown opcode behaves as a nop
+            default: ; 
         endcase
     end
 
