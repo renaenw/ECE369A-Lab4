@@ -1,4 +1,3 @@
-
 `timescale 1ns / 1ps
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6,6 +5,12 @@
 // Original testbench: Thomas Shing
 // Updated for Lab 4 - Added automatic PASS/FAIL verification by Renae Weiss
 // Module - DataMemory_tb.v
+//
+// Additional Lab 4 Updates - Renae Weiss
+// - Added MemSize input for word, halfword, and byte operations.
+// - Added tests for lb, lh, sb, and sh.
+// - Added sign extension and partial-write verification.
+// - Preserved the original 10 full-word tests.
 ////////////////////////////////////////////////////////////////////////////////
 
 module DataMemory_tb();
@@ -15,6 +20,7 @@ module DataMemory_tb();
     reg Clk;
     reg MemWrite;
     reg MemRead;
+    reg [1:0] MemSize;
 
     wire [31:0] ReadData;
 
@@ -27,6 +33,7 @@ module DataMemory_tb();
         .Clk(Clk),
         .MemWrite(MemWrite),
         .MemRead(MemRead),
+        .MemSize(MemSize),
         .ReadData(ReadData)
     );
 
@@ -56,8 +63,19 @@ module DataMemory_tb();
     initial begin
         MemWrite = 0;
         MemRead = 0;
+        MemSize = 2'b00;
         Address = 0;
         WriteData = 0;
+        
+        // Lab 4: Verify data loaded from data_memory.mem
+        #1;
+        MemRead = 1;
+        Address = 32'h00000000;
+        #1;
+        $display("Test: Memory initialization using $readmemh");
+        checkResult(32'h12345678);
+
+        MemRead = 0;
 
         // Test 1: Basic write then read back
         @(negedge Clk);
@@ -141,7 +159,7 @@ module DataMemory_tb();
         $display("Test 6: Write disabled");
         checkResult(32'hDEADBEEF);
 
-        // Test 7: Address bits [1:0] ignored
+        // Test 7: Address bits [1:0] ignored for word reads
         @(negedge Clk);
         MemRead = 0;
         Address = 32'h00000010;
@@ -175,6 +193,99 @@ module DataMemory_tb();
         #1;
         $display("Test 8: Overwrite");
         checkResult(32'hC0FFEE00);
+
+        ////////////////////////////////////////////////////////////////
+        // NEW LAB 4 TESTS
+        ////////////////////////////////////////////////////////////////
+
+        // Test 9: lb - load negative byte with sign extension
+        MemSize = 2'b10;
+        Address = 32'h00000000;
+        #1;
+        $display("Test 9: lb negative byte");
+        checkResult(32'hFFFFFFBE);
+        
+        // Test 10: lb - load negative byte with sign extension
+        Address = 32'h00000001;
+        #1;
+        $display("Test 10: lb negative byte");
+        checkResult(32'hFFFFFFBA);
+
+        // Test 11: lh - load negative lower halfword
+        MemSize = 2'b01;
+        Address = 32'h00000000;
+        #1;
+        $display("Test 11: lh lower halfword");
+        checkResult(32'hFFFFBABE);
+
+        // Test 12: lh - load negative upper halfword
+        Address = 32'h00000002;
+        #1;
+        $display("Test 12: lh upper halfword");
+        checkResult(32'hFFFFCAFE);
+
+        // Test 13: sb - overwrite one byte
+        @(negedge Clk);
+        MemRead = 0;
+        MemSize = 2'b10;
+        Address = 32'h00000001;
+        WriteData = 32'h00000055;
+        MemWrite = 1;
+        @(posedge Clk); #1;
+
+        MemWrite = 0;
+        MemRead = 1;
+        MemSize = 2'b00;
+        Address = 32'h00000000;
+        #1;
+        $display("Test 13: sb preserves other bytes");
+        checkResult(32'hCAFE55BE);
+
+        // Test 14: sh - overwrite upper halfword
+        @(negedge Clk);
+        MemRead = 0;
+        MemSize = 2'b01;
+        Address = 32'h00000002;
+        WriteData = 32'h00001234;
+        MemWrite = 1;
+        @(posedge Clk); #1;
+
+        MemWrite = 0;
+        MemRead = 1;
+        MemSize = 2'b00;
+        Address = 32'h00000000;
+        #1;
+        $display("Test 14: sh preserves lower halfword");
+        checkResult(32'h123455BE);
+
+        // Test 15: lb - verify byte after store
+        MemSize = 2'b10;
+        Address = 32'h00000001;
+        #1;
+        $display("Test 15: lb after sb");
+        checkResult(32'h00000055);
+
+        // Test 16: lh - verify halfword after store
+        MemSize = 2'b01;
+        Address = 32'h00000002;
+        #1;
+        $display("Test 16: lh after sh");
+        checkResult(32'h00001234);
+
+        // Test 17: Read disabled for byte operations
+        MemSize = 2'b10;
+        MemRead = 0;
+        #1;
+        $display("Test 17: Byte read disabled");
+        checkResult(32'h00000000);
+        
+        // Test 18: lb - load positive byte
+        MemRead = 1;
+        MemSize = 2'b10;
+        Address = 32'h00000001;
+        #1;
+        $display("Test 18: lb positive byte");
+        checkResult(32'h00000055);
 
         // Final summary
         $display("---------------------------");
