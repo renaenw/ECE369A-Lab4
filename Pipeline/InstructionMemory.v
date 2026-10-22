@@ -36,6 +36,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Lad 4: 1024 words using Address[11:2]
 module InstructionMemory(Address, Instruction); 
 
     input [31:0] Address;        // Input Address 
@@ -43,18 +44,19 @@ module InstructionMemory(Address, Instruction);
     output reg [31:0] Instruction;    // Instruction at memory location Address
     
     /* Please fill in the implementation here */
-    reg [31:0] Memory [0:127]; // 128 words of instruction memory
+    reg [31:0] Memory [0:1023]; // 1024 words of instruction memory
     
     integer i;
     
     initial begin
-        for (i=0; i<128; i=i+1) begin
-            Memory[i] = i * 3;
+        for (i=0; i<1028; i=i+1) begin
+            Memory[i] = 0;
         end
+        $readmemh("instruction_memory.mem", Memory);
     end
     
     always @(*) begin
-        Instruction = Memory[Address[8:2]];
+        Instruction = Memory[Address[11:2]];
     end
 
 endmodule
