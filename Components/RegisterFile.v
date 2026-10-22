@@ -62,10 +62,17 @@ module RegisterFile(ReadRegister1, ReadRegister2, WriteRegister, WriteData, RegW
 
     // 32 registers, each 32 bits wide
     reg [31:0] Registers [0:31];
+    
+    integer i;
+    // Start every register at 0
+    initial begin
+        for (i=0; i<32; i=i+1)
+            Registers[i] = 32'd0;
+    end
 
     // Write to the selected register on the rising edge of the clock
     always @(posedge Clk) begin
-        if (RegWrite)
+        if (RegWrite && WriteRegister != 5'd0)
             Registers[WriteRegister] <= WriteData;
     end
 
