@@ -1,14 +1,14 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // ECE369 - Computer Architecture
-// Karyna Kuzhelnykova
+// Karyna Kuzhelnykova 100%
 //
 // Module - ID_EX_Reg.v
 // Description - ID/EX pipeline register.
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module ID_EX_Reg(
+module ID_EX(
     input Clk, Reset,
  
     // control signals from the Controller

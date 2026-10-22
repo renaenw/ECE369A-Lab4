@@ -1,14 +1,14 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // ECE369 - Computer Architecture
-// Karyna Kuzhelnykova
+// Karyna Kuzhelnykova 100%
 //
 // Module - EX_MEM_Reg.v
 // Description - EX/MEM pipeline register.
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module EX_MEM_Reg(
+module EX_MEM(
     input Clk, Reset,
  
     // control signals

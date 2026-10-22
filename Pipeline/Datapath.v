@@ -2,8 +2,9 @@
  
 ////////////////////////////////////////////////////////////////////////////////
 // ECE369 - Computer Architecture
-// Karyna Kuzhelnykova
-//
+// Karyna Kuzhelnykova 33.3%
+// Thomas Shing 33.3%
+// Renae Weiss 33.3%
 // Module - Datapath.v
 // Description - Top module of the 5-stage pipelined MIPS datapath.
 //               PC is the PC of the instruction in WB, WriteData is the value

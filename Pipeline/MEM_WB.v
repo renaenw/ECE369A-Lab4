@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // ECE369 - Computer Architecture
-// Karyna Kuzhelnykova
+// Karyna Kuzhelnykova 100%
 //
 // Module - MEM_WB_Reg.v
 // Description - MEM/WB pipeline register.
