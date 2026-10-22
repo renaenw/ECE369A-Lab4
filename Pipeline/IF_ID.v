@@ -1,22 +1,10 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 10/22/2026 01:37:52 AM
-// Design Name: 
-// Module Name: IF_ID
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
+// ECE369 - Computer Architecture
+// Karyna Kuzhelnykova 100%
+//
+// Module - IF_ID_Reg.v
+// Description - IF/ID pipeline register.
 //////////////////////////////////////////////////////////////////////////////////
 
 

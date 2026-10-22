@@ -1,22 +1,10 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 10/22/2026 02:17:42 AM
-// Design Name: 
-// Module Name: MEM_WB
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
+// ECE369 - Computer Architecture
+// Karyna Kuzhelnykova
+//
+// Module - MEM_WB_Reg.v
+// Description - MEM/WB pipeline register.
 //////////////////////////////////////////////////////////////////////////////////
 
 

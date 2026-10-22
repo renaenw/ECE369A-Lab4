@@ -1,22 +1,10 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 10/22/2026 02:14:44 AM
-// Design Name: 
-// Module Name: ID_EX
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
+// ECE369 - Computer Architecture
+// Karyna Kuzhelnykova
+//
+// Module - ID_EX_Reg.v
+// Description - ID/EX pipeline register.
 //////////////////////////////////////////////////////////////////////////////////
 
 
