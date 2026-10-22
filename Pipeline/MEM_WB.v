@@ -10,7 +10,7 @@
 
 module MEM_WB(
     input Clk, Reset,
-    input RegWriteIn, ALUResultIn, MemtoRegIn,
+    input RegWriteIn, MemtoRegIn,
     input [31:0] PCResultIn, ALUResultIn, ReadDataIn,
     input [4:0] WriteRegisterIn, 
     

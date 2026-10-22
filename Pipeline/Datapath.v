@@ -46,7 +46,7 @@ module Datapath(input Clk, Reset, output [31:0] PC, WriteData);
     PCAdder pcadder(.PCResult(IF_PCResult), .PCAddResult(IF_PCAddResult));
     InstructionMemory imem(.Address(IF_PCResult), .Instruction(IF_Instruction));
  
-    IF_ID_Reg ifid(.Clk(Clk), .Reset(Reset),
+    IF_ID ifid(.Clk(Clk), .Reset(Reset),
         .PCResultIn(IF_PCResult), .PCAddResultIn(IF_PCAddResult), .InstructionIn(IF_Instruction),
         .PCResultOut(ID_PCResult), .PCAddResultOut(ID_PCAddResult), .InstructionOut(ID_Instruction));
  
@@ -63,7 +63,7 @@ module Datapath(input Clk, Reset, output [31:0] PC, WriteData);
  
     SignExtension signext(.in(ID_Instruction[15:0]), .out(ID_Immediate));
  
-    ID_EX_Reg idex(.Clk(Clk), .Reset(Reset),
+    ID_EX idex(.Clk(Clk), .Reset(Reset),
         .RegWriteIn(ID_RegWrite), .MemtoRegIn(ID_MemtoReg), .MemReadIn(ID_MemRead), .MemWriteIn(ID_MemWrite),
         .BranchIn(ID_Branch), .ALUSrcIn(ID_ALUSrc), .ShiftSrcIn(ID_ShiftSrc), .ZeroExtIn(ID_ZeroExt),
         .LinkIn(ID_Link), .MemSizeIn(ID_MemSize), .RegDstIn(ID_RegDst), .BranchTypeIn(ID_BranchType),
@@ -84,7 +84,7 @@ module Datapath(input Clk, Reset, output [31:0] PC, WriteData);
         .BranchType(EX_BranchType), .ALUResult(EX_ALUResult), .Zero(), .BranchTarget(EX_BranchTarget),
         .BranchCond(EX_BranchCond), .WriteRegister(EX_WriteRegister), .MemWriteData(EX_MemWriteData));
 
-    EX_MEM_Reg exmem(.Clk(Clk), .Reset(Reset),
+    EX_MEM exmem(.Clk(Clk), .Reset(Reset),
         .RegWriteIn(EX_RegWrite), .MemtoRegIn(EX_MemtoReg), .MemReadIn(EX_MemRead), .MemWriteIn(EX_MemWrite),
         .BranchIn(EX_Branch), .MemSizeIn(EX_MemSize), .PCResultIn(EX_PCResult), .ALUResultIn(EX_ALUResult),
         .BranchTargetIn(EX_BranchTarget), .MemWriteDataIn(EX_MemWriteData), .BranchCondIn(EX_BranchCond),
@@ -98,7 +98,7 @@ module Datapath(input Clk, Reset, output [31:0] PC, WriteData);
     DataMemory dmem(.Address(MEM_ALUResult), .WriteData(MEM_MemWriteData), .Clk(Clk),
         .MemWrite(MEM_MemWrite), .MemRead(MEM_MemRead), .MemSize(MEM_MemSize), .ReadData(MEM_ReadData));
  
-    MEM_WB_Reg memwb(.Clk(Clk), .Reset(Reset),
+    MEM_WB memwb(.Clk(Clk), .Reset(Reset),
         .RegWriteIn(MEM_RegWrite), .MemtoRegIn(MEM_MemtoReg), .PCResultIn(MEM_PCResult),
         .ALUResultIn(MEM_ALUResult), .ReadDataIn(MEM_ReadData), .WriteRegisterIn(MEM_WriteRegister),
         .RegWriteOut(WB_RegWrite), .MemtoRegOut(WB_MemtoReg), .PCResultOut(WB_PCResult),
