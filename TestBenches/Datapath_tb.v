@@ -21,7 +21,8 @@ module Datapath_tb();
         #1500 $finish;
     end
  
+    // only top-level ports
     always @(negedge Clk)
-        if (uut.WB_RegWrite)
+        if (WriteData != 0)
             $display("PC=%0d  WriteData=%0d", PC, $signed(WriteData));
 endmodule
