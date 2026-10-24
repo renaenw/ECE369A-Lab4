@@ -1,12 +1,47 @@
-20090006 // PC 0:   addi $t1, $zero, 6     -> 6
-200A000A // PC 4:  addi $t2, $zero, 10    -> 10
-00000000
-00000000
-00000000
-012A5820 // PC 20:  add  $t3, $t1, $t2     -> 16
-00000000
-00000000
-00000000
-AC0B0000 // PC 36:  sw   $t3, 0($zero)
-8C0C0000 // PC 40:  lw   $t4, 0($zero)     -> 16
-01496822 // PC 44: sub  $t5, $t2, $t1     -> 4
+20080005	//	main:	addi	$t0, $zero, 5 ->	main:	addi	$t0, $zero, 5
+2009fffd	//		addi	$t1, $zero, -3 ->		addi	$t1, $zero, -3
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+11080004	//		beq	$t0, $t0, B1 ->		beq	$t0, $t0, B1
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+20100063	//		addi	$s0, $zero, 99 ->		addi	$s0, $zero, 99
+15000004	//	B1:	bne	$t0, $zero, B2 ->	B1:	bne	$t0, $zero, B2
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+20100063	//		addi	$s0, $zero, 99 ->		addi	$s0, $zero, 99
+05010004	//	B2:	bgez	$t0, B3 ->	B2:	bgez	$t0, B3
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+20100063	//		addi	$s0, $zero, 99 ->		addi	$s0, $zero, 99
+1d000004	//	B3:	bgtz	$t0, B4 ->	B3:	bgtz	$t0, B4
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+20100063	//		addi	$s0, $zero, 99 ->		addi	$s0, $zero, 99
+19200004	//	B4:	blez	$t1, B5 ->	B4:	blez	$t1, B5
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+20100063	//		addi	$s0, $zero, 99 ->		addi	$s0, $zero, 99
+05200004	//	B5:	bltz	$t1, B6 ->	B5:	bltz	$t1, B6
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+00000000	//		nop ->		nop
+20100063	//		addi	$s0, $zero, 99 ->		addi	$s0, $zero, 99
+08000026	//	B6:	j	J1 ->	B6:	j	J1
+00000000	//		nop ->		nop
+20100063	//		addi	$s0, $zero, 99 ->		addi	$s0, $zero, 99
+0c00002b	//	J1:	jal	FUNC ->	J1:	jal	FUNC
+00000000	//		nop ->		nop
+20110001	//		addi	$s1, $zero, 1 ->		addi	$s1, $zero, 1
+08000029	//	END:	j	END ->	END:	j	END
+00000000	//		nop ->		nop
+00000000	//	FUNC:	nop ->	FUNC:	nop
+00000000	//		nop ->		nop
+03e00008	//		jr	$ra ->		jr	$ra
+00000000	//		nop ->		nop

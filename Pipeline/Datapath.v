@@ -16,8 +16,9 @@ module Datapath(input Clk, Reset, output [31:0] PC, WriteData);
     // wires are named <stage>_<port name>
     wire [31:0] IF_PCResult, IF_PCAddResult, IF_Instruction, IF_PCNext;
     
-    wire [31:0] ID_PCResult, ID_PCAddResult, ID_Instruction, ID_ReadData1, ID_ReadData2, ID_Immediate;
+    wire [31:0] ID_PCResult, ID_PCAddResult, ID_Instruction, ID_ReadData1, ID_ReadData2, ID_Immediate, ID_JumpTarget;
     wire ID_RegWrite, ID_MemtoReg, ID_MemRead, ID_MemWrite, ID_Branch, ID_ALUSrc, ID_ShiftSrc, ID_ZeroExt, ID_Link;
+    wire ID_Jump, ID_JumpReg;
     wire [1:0] ID_MemSize, ID_RegDst;
     wire [2:0] ID_BranchType;
     wire [3:0] ID_ALUControl;
@@ -41,7 +42,10 @@ module Datapath(input Clk, Reset, output [31:0] PC, WriteData);
     wire [4:0] WB_WriteRegister;
  
     // IF - Karyna
-    assign IF_PCNext = (MEM_Branch & MEM_BranchCond) ? MEM_BranchTarget : IF_PCAddResult;
+    // branches decided in MEM, jump in ID
+    assign IF_PCNext = (MEM_Branch & MEM_BranchCond) ? MEM_BranchTarget : 
+                       (ID_Jump | ID_JumpReg)        ? ID_JumpTarget    :
+                                                       IF_PCAddResult;
     
     ProgramCounter pcreg(.Clk(Clk), .Reset(Reset), .PCNext(IF_PCNext), .PCResult(IF_PCResult));
     PCAdder pcadder(.PCResult(IF_PCResult), .PCAddResult(IF_PCAddResult));
@@ -54,7 +58,7 @@ module Datapath(input Clk, Reset, output [31:0] PC, WriteData);
     // ID - Karyna
     Controller ctrl(.Instruction(ID_Instruction),
         .RegWrite(ID_RegWrite), .MemtoReg(ID_MemtoReg), .MemRead(ID_MemRead), .MemWrite(ID_MemWrite),
-        .MemSize(ID_MemSize), .Branch(ID_Branch), .BranchType(ID_BranchType), .Jump(), .JumpReg(),
+        .MemSize(ID_MemSize), .Branch(ID_Branch), .BranchType(ID_BranchType), .Jump(ID_Jump), .JumpReg(ID_JumpReg),
         .RegDst(ID_RegDst), .ALUSrc(ID_ALUSrc), .ShiftSrc(ID_ShiftSrc), .ZeroExt(ID_ZeroExt),
         .Link(ID_Link), .ALUControl(ID_ALUControl));
  
@@ -63,7 +67,10 @@ module Datapath(input Clk, Reset, output [31:0] PC, WriteData);
         .Clk(Clk), .ReadData1(ID_ReadData1), .ReadData2(ID_ReadData2));
  
     SignExtension signext(.in(ID_Instruction[15:0]), .out(ID_Immediate));
- 
+    
+    // jr: $rs
+    assign ID_JumpTarget = ID_JumpReg ? ID_ReadData1 : {ID_PCAddResult[31:28], ID_Instruction[25:0], 2'b00};
+    
     ID_EX idex(.Clk(Clk), .Reset(Reset),
         .RegWriteIn(ID_RegWrite), .MemtoRegIn(ID_MemtoReg), .MemReadIn(ID_MemRead), .MemWriteIn(ID_MemWrite),
         .BranchIn(ID_Branch), .ALUSrcIn(ID_ALUSrc), .ShiftSrcIn(ID_ShiftSrc), .ZeroExtIn(ID_ZeroExt),
