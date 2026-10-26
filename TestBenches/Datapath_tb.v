@@ -18,7 +18,7 @@ module Datapath_tb();
     always #10 Clk = ~Clk;
     initial begin
         #35 Reset = 0;      // hold reset 1.5+ cycles, release between clock edges
-        #1500 $finish;
+        #6500 $finish;
     end
  
     // only top-level ports
