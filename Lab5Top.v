@@ -30,6 +30,10 @@
 
 module Lab5Top(Clk, Reset, out7, en_out);
 
+    // 1 Hz datapath clock: DIV_VAL = 100MHz / (2 * desired Hz).
+    // The testbench lowers this so simulation finishes quickly.
+    parameter DIV_VAL = 50000000;
+
     input Clk, Reset;
     output [6:0] out7;
     output [7:0] en_out;
@@ -48,9 +52,7 @@ module Lab5Top(Clk, Reset, out7, en_out);
             PowerOnCount <= PowerOnCount + 4'd1;
     end
 
-    // 1 Hz datapath clock. Lower DivVal to run faster
-    // (DivVal = 100MHz / (2 * desired Hz)).
-    ClkDiv #(.DivVal(50000000)) clkdiv(
+    ClkDiv #(.DivVal(DIV_VAL)) clkdiv(
         .Clk(Clk),
         .Rst(PowerOnReset),
         .ClkOut(SlowClk)
@@ -77,8 +79,7 @@ module Lab5Top(Clk, Reset, out7, en_out);
         end
     end
 
-    // TODO: rename to the top datapath module and its ports once the
-    // Lab 4 top module is finished.
+    // Lab 4 top module (Pipeline/Datapath.v)
     Datapath datapath(
         .Clk(SlowClk),
         .Reset(DatapathReset),
