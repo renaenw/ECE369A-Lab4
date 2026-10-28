@@ -52,7 +52,7 @@ module InstructionMemory(Address, Instruction);
         for (i=0; i<1024; i=i+1) begin
             Memory[i] = 0;
         end
-        $readmemh("combined_test.mem", Memory);
+        $readmemh("instruction_memory.mem", Memory);
     end
     
     always @(*) begin

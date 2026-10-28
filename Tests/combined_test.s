@@ -157,6 +157,11 @@ nop
 # ----- RENAE: Data memory -----
 addi $t0, $zero, 100
 addi $t1, $zero, 42
+nop
+nop
+nop
+nop
+nop
 sw $t1, 0($t0)
 nop
 nop
