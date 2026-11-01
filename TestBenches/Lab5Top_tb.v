@@ -2,8 +2,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // ECE369 - Computer Architecture
-// Thomas Shing 100%
-//
+// Karyna Kuzhelnykova 33.3%
+// Thomas Shing 33.3%
+// Renae Weiss 33.3%//
 // Module - Lab5Top_tb.v
 // Description - Testbench for Lab5Top.v (datapath + ClkDiv + Two4DigitDisplay)
 //               driven the way the Nexys A7 drives it: a 100 MHz clock and the
@@ -20,7 +21,7 @@
 //   3) Reset button: a 20 ns press partway through must restart the datapath
 //      (PC and WriteData back to 0, then the program runs again).
 //
-//   DIV_VAL lowers the clock divider so the datapath runs at about 25 kHz in
+//   DIV_VAL lowers the clock divider so the datapath runs at about 5 kHz in
 //   simulation instead of 1 Hz. The display refresh is unchanged, so one full
 //   scan of the 8 digits takes about 10.5 ms of simulated time.
 //
@@ -33,7 +34,7 @@
 
 module Lab5Top_tb();
 
-    parameter DIV_VAL   = 2000;       // datapath clock period = 2*(DIV_VAL+1)*10 ns (~40 us)
+    parameter DIV_VAL   = 10000;      // datapath clock period = 2*(DIV_VAL+1)*10 ns
     parameter RESET_AT  = 15000000;   // ns, time of the Reset button press
     parameter SIM_TIME  = 30000000;   // ns, total simulated time
 
