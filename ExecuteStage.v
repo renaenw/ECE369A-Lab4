@@ -56,10 +56,8 @@ module ExecuteStage(PCPlus4, ReadData1, ReadData2, Immediate, Rt, Rd,
 
     wire [31:0] ImmOperand, ALUInA, ALUInB, ALUOut;
 
-    // andi/ori/xori zero extend; everything else uses the sign extended value
     assign ImmOperand = ZeroExt ? {16'd0, Immediate[15:0]} : Immediate;
 
-    // shamt path: shifts take their amount from Instruction[10:6]
     assign ALUInA = ShiftSrc ? {27'd0, Immediate[10:6]} : ReadData1;
     assign ALUInB = ALUSrc ? ImmOperand : ReadData2;
 
@@ -71,27 +69,24 @@ module ExecuteStage(PCPlus4, ReadData1, ReadData2, Immediate, Rt, Rd,
         .Zero(Zero)
     );
 
-    // jal: return address PC+8 (MIPS reference, see Common Questions Q9)
     assign ALUResult = Link ? (PCPlus4 + 32'd4) : ALUOut;
 
     assign BranchTarget = PCPlus4 + {Immediate[29:0], 2'b00};
 
     assign MemWriteData = ReadData2;
 
-    // Branch conditions (BranchType encoding from Controller.v)
     always @(*) begin
         case (BranchType)
-            3'd0: BranchCond = (ReadData1 == ReadData2);      // beq
-            3'd1: BranchCond = (ReadData1 != ReadData2);      // bne
-            3'd2: BranchCond = ~ReadData1[31];                // bgez: rs >= 0
-            3'd3: BranchCond = ~ReadData1[31] & (ReadData1 != 32'd0); // bgtz: rs > 0
-            3'd4: BranchCond = ReadData1[31] | (ReadData1 == 32'd0);  // blez: rs <= 0
-            3'd5: BranchCond = ReadData1[31];                 // bltz: rs < 0
+            3'd0: BranchCond = (ReadData1 == ReadData2);      //
+            3'd1: BranchCond = (ReadData1 != ReadData2);      
+            3'd2: BranchCond = ~ReadData1[31];               
+            3'd3: BranchCond = ~ReadData1[31] & (ReadData1 != 32'd0); 
+            3'd4: BranchCond = ReadData1[31] | (ReadData1 == 32'd0);  
+            3'd5: BranchCond = ReadData1[31];                 
             default: BranchCond = 1'b0;
         endcase
     end
 
-    // RegDst mux: 00 rt, 01 rd, 10 $ra
     always @(*) begin
         case (RegDst)
             2'b00: WriteRegister = Rt;

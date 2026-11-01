@@ -30,8 +30,7 @@
 
 module Lab5Top(Clk, Reset, out7, en_out);
 
-    // 1 Hz datapath clock: DIV_VAL = 100MHz / (2 * desired Hz).
-    // The testbench lowers this so simulation finishes quickly.
+
     parameter DIV_VAL = 50000000;
 
     input Clk, Reset;
@@ -41,9 +40,7 @@ module Lab5Top(Clk, Reset, out7, en_out);
     wire SlowClk;
     wire [31:0] PC, WriteData;
 
-    // ClkDiv has no initial values, so give it a short reset at power up only.
-    // After that it keeps running, so the datapath still gets clock edges
-    // while the Reset button is held.
+
     reg [3:0] PowerOnCount = 4'd0;
     wire PowerOnReset = ~&PowerOnCount;
 
@@ -58,9 +55,6 @@ module Lab5Top(Clk, Reset, out7, en_out);
         .ClkOut(SlowClk)
     );
 
-    // A button press is much shorter than one slow clock period, so hold the
-    // datapath reset until the slow clock has had a rising edge and then a
-    // falling edge after the button is released. Also held at power up.
     reg DatapathReset = 1'b1;
     reg SlowClkPrev = 1'b0;
     reg SawRise = 1'b0;
@@ -79,7 +73,6 @@ module Lab5Top(Clk, Reset, out7, en_out);
         end
     end
 
-    // Lab 4 top module (Pipeline/Datapath.v)
     Datapath datapath(
         .Clk(SlowClk),
         .Reset(DatapathReset),
