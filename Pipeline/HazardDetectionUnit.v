@@ -56,6 +56,11 @@ module HazardDetectionUnit(
                 uses_rt = 1'b1; // beq, bne
             end
 
+            6'b011100: begin
+                uses_rs = 1'b1;
+                uses_rt = 1'b1; // mul
+            end
+
             6'b000111: uses_rs = 1'b1; // bgtz
 
             6'b101011, 6'b101000, 6'b101001: begin
