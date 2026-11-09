@@ -38,7 +38,7 @@ module Lab5Top(Clk, Reset, out7, en_out);
     output [7:0] en_out;
 
     wire SlowClk;
-    wire [31:0] PC, WriteData;
+    (* DONT_TOUCH = "TRUE" *) wire [31:0] PC, WriteData;
 
 
     reg [3:0] PowerOnCount = 4'd0;
@@ -73,6 +73,9 @@ module Lab5Top(Clk, Reset, out7, en_out);
         end
     end
 
+    // DONT_TOUCH keeps the Datapath hierarchy and all 32 bits of its PC and
+    // WriteData ports in the routed netlist (the display only uses [15:0]).
+    (* DONT_TOUCH = "TRUE" *)
     Datapath datapath(
         .Clk(SlowClk),
         .Reset(DatapathReset),
