@@ -62,7 +62,7 @@ module Lab6_tb();
         ExpPC[1] = 4; ExpData[1] = 32'h0000000A;  // 10  addi $t1, $t0, -2
         ExpPC[2] = 8; ExpData[2] = 32'h00000016;  // 22  add $t2, $t0, $t1
         ExpPC[3] = 12; ExpData[3] = 32'h0000000A;  // 10  sub $t3, $t2, $t0
-        ExpPC[4] = 16; ExpData[4] = 32'h000000DC;  // 220  mul $t4, $t3, $t2
+        ExpPC[4] = 16; ExpData[4] = 32'h000000DC;  // 220  mul $t4, $t2, $t3
         ExpPC[5] = 20; ExpData[5] = 32'h000000DE;  // 222  or $t5, $t4, $t1
         ExpPC[6] = 24; ExpData[6] = 32'h000000DC;  // 220  and $t6, $t5, $t4
         ExpPC[7] = 28; ExpData[7] = 32'h00000002;  // 2  xor $t7, $t6, $t5

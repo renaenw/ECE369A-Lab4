@@ -27,7 +27,7 @@ addi $t0, $zero, 12        # [0] 12         t0 = 12
 addi $t1, $t0, -2          # [4] 10         rs dist 1
 add  $t2, $t0, $t1         # [8] 22         rs dist 2, rt dist 1
 sub  $t3, $t2, $t0         # [12] 10        rs dist 1, rt dist 3
-mul  $t4, $t3, $t2         # [16] 220       rs dist 1, rt dist 2
+mul  $t4, $t2, $t3         # [16] 220       rt dist 1, rs dist 2 (mul reads rt too)
 or   $t5, $t4, $t1         # [20] 222       rs dist 1
 and  $t6, $t5, $t4         # [24] 220       rs dist 1, rt dist 2
 xor  $t7, $t6, $t5         # [28] 2         rs dist 1, rt dist 2
@@ -146,9 +146,9 @@ lw_beq_ok:
 addi $t0, $zero, 3         # [416] 3
 addi $t1, $zero, 100       # [420] 100
 loop:
-addi $t0, $t0, -1          # [424] 2, 1, 0
+addi $t0, $t0, -1          # [424] 2, 1, 0  2, 1, 0
 bne  $t0, $zero, loop      # [428]          backward, rs dist 1
-addi $t1, $t1, 10          # [432] 110, 120, 130  delay slot, runs every time
+addi $t1, $t1, 10          # [432] 110, 120, 130 delay slot, runs every time: 110, 120, 130
 # ---------- jal / jr ----------
 jal  func                  # [436] 444      $ra = PC + 8
 addi $a0, $zero, 77        # [440] 77       delay slot of jal (runs before func)
