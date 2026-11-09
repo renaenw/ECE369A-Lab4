@@ -9,6 +9,9 @@
 // Description - Top module of the 5-stage pipelined MIPS datapath.
 //               PC is the PC of the instruction in WB, WriteData is the value
 //               it writes to the register file (0 if nothing is written).
+//
+// Lab 6 - Hazard Detection:
+// Added stall control to PC, IF/ID, and ID/EX pipeline registers.
 ////////////////////////////////////////////////////////////////////////////////
  
 module Datapath(input Clk, Reset, output [31:0] PC, WriteData);
@@ -40,18 +43,29 @@ module Datapath(input Clk, Reset, output [31:0] PC, WriteData);
     wire [31:0] WB_PCResult, WB_ALUResult, WB_ReadData, WB_WriteData;
     wire WB_RegWrite, WB_MemtoReg;
     wire [4:0] WB_WriteRegister;
+
+    // Lab 6 - Hazard Detection
+    wire Stall;
+    wire Flush;
+    wire BranchTaken;
+
+    assign BranchTaken = MEM_Branch & MEM_BranchCond;
+    assign Flush = BranchTaken | ((ID_Jump | ID_JumpReg) & !Stall);
  
     // IF - Karyna
     // branches decided in MEM, jump in ID
-    assign IF_PCNext = (MEM_Branch & MEM_BranchCond) ? MEM_BranchTarget : 
-                       (ID_Jump | ID_JumpReg)        ? ID_JumpTarget    :
-                                                       IF_PCAddResult;
+    assign IF_PCNext = BranchTaken ? MEM_BranchTarget :
+                       ((ID_Jump | ID_JumpReg) && !Stall) ? ID_JumpTarget :
+                                                            IF_PCAddResult;
     
-    ProgramCounter pcreg(.Clk(Clk), .Reset(Reset), .PCNext(IF_PCNext), .PCResult(IF_PCResult));
+    ProgramCounter pcreg(.Clk(Clk), .Reset(Reset), .Stall(Stall && !BranchTaken),
+        .PCNext(IF_PCNext), .PCResult(IF_PCResult));
+
     PCAdder pcadder(.PCResult(IF_PCResult), .PCAddResult(IF_PCAddResult));
+
     InstructionMemory imem(.Address(IF_PCResult), .Instruction(IF_Instruction));
  
-    IF_ID ifid(.Clk(Clk), .Reset(Reset),
+    IF_ID ifid(.Clk(Clk), .Reset(Reset), .Stall(Stall && !BranchTaken), .Flush(Flush),
         .PCResultIn(IF_PCResult), .PCAddResultIn(IF_PCAddResult), .InstructionIn(IF_Instruction),
         .PCResultOut(ID_PCResult), .PCAddResultOut(ID_PCAddResult), .InstructionOut(ID_Instruction));
  
@@ -70,8 +84,20 @@ module Datapath(input Clk, Reset, output [31:0] PC, WriteData);
     
     // jr: $rs
     assign ID_JumpTarget = ID_JumpReg ? ID_ReadData1 : {ID_PCAddResult[31:28], ID_Instruction[25:0], 2'b00};
+
+    // Lab 6 - Detect RAW register dependencies in the ID stage
+    HazardDetectionUnit hazard(
+        .ID_Instruction(ID_Instruction),
+        .EX_RegWrite(EX_RegWrite),
+        .EX_WriteRegister(EX_WriteRegister),
+        .MEM_RegWrite(MEM_RegWrite),
+        .MEM_WriteRegister(MEM_WriteRegister),
+        .WB_RegWrite(WB_RegWrite),
+        .WB_WriteRegister(WB_WriteRegister),
+        .Stall(Stall)
+    );
     
-    ID_EX idex(.Clk(Clk), .Reset(Reset),
+    ID_EX idex(.Clk(Clk), .Reset(Reset), .Stall(Stall | BranchTaken),
         .RegWriteIn(ID_RegWrite), .MemtoRegIn(ID_MemtoReg), .MemReadIn(ID_MemRead), .MemWriteIn(ID_MemWrite),
         .BranchIn(ID_Branch), .ALUSrcIn(ID_ALUSrc), .ShiftSrcIn(ID_ShiftSrc), .ZeroExtIn(ID_ZeroExt),
         .LinkIn(ID_Link), .MemSizeIn(ID_MemSize), .RegDstIn(ID_RegDst), .BranchTypeIn(ID_BranchType),

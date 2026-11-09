@@ -5,11 +5,15 @@
 //
 // Module - ID_EX_Reg.v
 // Description - ID/EX pipeline register.
+//
+// Lab 6 - Hazard Detection:
+// Added Stall input to insert a bubble into the EX stage when
+// a register dependency is detected.
 //////////////////////////////////////////////////////////////////////////////////
 
 
 module ID_EX(
-    input Clk, Reset,
+    input Clk, Reset, Stall,
  
     // control signals from the Controller
     input RegWriteIn, MemtoRegIn, MemReadIn, MemWriteIn, BranchIn, ALUSrcIn, ShiftSrcIn, ZeroExtIn, LinkIn,
@@ -29,7 +33,7 @@ module ID_EX(
     output reg [4:0] RtOut, RdOut);
  
     always @(posedge Clk) begin
-        if (Reset)
+        if (Reset || Stall)
             {RegWriteOut, MemtoRegOut, MemReadOut, MemWriteOut, BranchOut, ALUSrcOut, ShiftSrcOut, ZeroExtOut, LinkOut,
              MemSizeOut, RegDstOut, BranchTypeOut, ALUControlOut,
              PCResultOut, PCPlus4Out, ReadData1Out, ReadData2Out, ImmediateOut, RtOut, RdOut} <= 0;
