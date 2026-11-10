@@ -84,3 +84,8 @@ set_property PACKAGE_PIN N17 [get_ports {Reset}]
 #set_property PACKAGE_PIN L16 [get_ports {NumberA[1]}]
 #set_property IOSTANDARD LVCMOS33 [get_ports {NumberA[0]}]
 #set_property PACKAGE_PIN J15 [get_ports {NumberA[0]}]
+
+## Configuration bank voltage (Nexys A7 bank 0 is 3.3 V); removes the
+## CFGBVS / CONFIG_VOLTAGE DRC warning when the bitstream is written
+set_property CFGBVS VCCO [current_design]
+set_property CONFIG_VOLTAGE 3.3 [current_design]

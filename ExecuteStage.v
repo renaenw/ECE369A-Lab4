@@ -11,10 +11,11 @@
 //   - ALU A mux   : rs value, or shamt (Immediate[10:6]) for sll/srl
 //   - ALU B mux   : rt value, or the immediate (sign or zero extended)
 //   - ALU
-//   - Branch adder: BranchTarget = PC+4 + (sign extended offset << 2)
-//   - Branch check: BranchCond for beq/bne/bgez/bgtz/blez/bltz
 //   - RegDst mux  : rt, rd or $ra (31)
 //   - Link mux    : jal writes PC+8 to $ra through the ALU result path
+//
+//   Branches and jumps are resolved in the ID stage (see Datapath.v), so
+//   there is no branch adder or branch comparator here.
 //
 // INPUTS (from ID/EX):-
 // PCPlus4      : 32-Bit PC + 4 of this instruction
@@ -23,34 +24,28 @@
 // Immediate    : 32-Bit sign extended Instruction[15:0]. Bits [10:6] are the
 //                shamt field, so no separate shamt pipeline field is needed.
 // Rt, Rd       : 5-Bit Instruction[20:16] and Instruction[15:11]
-// ALUControl, ALUSrc, ShiftSrc, ZeroExt, RegDst, Link, BranchType : from
+// ALUControl, ALUSrc, ShiftSrc, ZeroExt, RegDst, Link : from
 //                Controller.v (see that file for encodings)
 //
 // OUTPUTS (to EX/MEM):-
 // ALUResult    : 32-Bit result (PC+8 for jal, memory address for loads/stores)
 // Zero         : ALU zero flag
-// BranchTarget : 32-Bit branch target address
-// BranchCond   : 1 if the branch condition is true. The MEM stage takes the
-//                branch when (Branch & BranchCond).
 // WriteRegister: 5-Bit destination register
 // MemWriteData : 32-Bit rt value, the data stored by sw/sh/sb
 ////////////////////////////////////////////////////////////////////////////////
 
 module ExecuteStage(PCPlus4, ReadData1, ReadData2, Immediate, Rt, Rd,
-                    ALUControl, ALUSrc, ShiftSrc, ZeroExt, RegDst, Link, BranchType,
-                    ALUResult, Zero, BranchTarget, BranchCond, WriteRegister, MemWriteData);
+                    ALUControl, ALUSrc, ShiftSrc, ZeroExt, RegDst, Link,
+                    ALUResult, Zero, WriteRegister, MemWriteData);
 
     input [31:0] PCPlus4, ReadData1, ReadData2, Immediate;
     input [4:0] Rt, Rd;
     input [3:0] ALUControl;
     input ALUSrc, ShiftSrc, ZeroExt, Link;
     input [1:0] RegDst;
-    input [2:0] BranchType;
 
     output [31:0] ALUResult;
     output Zero;
-    output [31:0] BranchTarget;
-    output reg BranchCond;
     output reg [4:0] WriteRegister;
     output [31:0] MemWriteData;
 
@@ -71,21 +66,7 @@ module ExecuteStage(PCPlus4, ReadData1, ReadData2, Immediate, Rt, Rd,
 
     assign ALUResult = Link ? (PCPlus4 + 32'd4) : ALUOut;
 
-    assign BranchTarget = PCPlus4 + {Immediate[29:0], 2'b00};
-
     assign MemWriteData = ReadData2;
-
-    always @(*) begin
-        case (BranchType)
-            3'd0: BranchCond = (ReadData1 == ReadData2);      //
-            3'd1: BranchCond = (ReadData1 != ReadData2);      
-            3'd2: BranchCond = ~ReadData1[31];               
-            3'd3: BranchCond = ~ReadData1[31] & (ReadData1 != 32'd0); 
-            3'd4: BranchCond = ReadData1[31] | (ReadData1 == 32'd0);  
-            3'd5: BranchCond = ReadData1[31];                 
-            default: BranchCond = 1'b0;
-        endcase
-    end
 
     always @(*) begin
         case (RegDst)
