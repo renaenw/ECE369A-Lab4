@@ -20,7 +20,8 @@
 // Added stall control to PC, IF/ID, and ID/EX pipeline registers.
 ////////////////////////////////////////////////////////////////////////////////
 
-module Datapath(input Clk, Reset, output [31:0] PC, WriteData);
+// Lab 7: V0/V1 are $v0/$v1 (min-SAD row X / col Y), passed out for the display.
+module Datapath(input Clk, Reset, output [31:0] PC, WriteData, V0, V1);
 
     // wires are named <stage>_<port name>
     wire [31:0] IF_PCResult, IF_PCAddResult, IF_Instruction, IF_PCNext;
@@ -84,7 +85,8 @@ module Datapath(input Clk, Reset, output [31:0] PC, WriteData);
 
     RegisterFile rf(.ReadRegister1(ID_Instruction[25:21]), .ReadRegister2(ID_Instruction[20:16]),
         .WriteRegister(WB_WriteRegister), .WriteData(WB_WriteData), .RegWrite(WB_RegWrite),
-        .Clk(Clk), .ReadData1(ID_ReadData1), .ReadData2(ID_ReadData2));
+        .Clk(Clk), .Reset(Reset), .ReadData1(ID_ReadData1), .ReadData2(ID_ReadData2),
+        .V0(V0), .V1(V1));
 
     SignExtension signext(.in(ID_Instruction[15:0]), .out(ID_Immediate));
 

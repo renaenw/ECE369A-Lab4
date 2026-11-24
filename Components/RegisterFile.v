@@ -48,7 +48,7 @@
 // to allow for data multiplexing and setup time.
 ////////////////////////////////////////////////////////////////////////////////
 
-module RegisterFile(ReadRegister1, ReadRegister2, WriteRegister, WriteData, RegWrite, Clk, ReadData1, ReadData2);
+module RegisterFile(ReadRegister1, ReadRegister2, WriteRegister, WriteData, RegWrite, Clk, Reset, ReadData1, ReadData2, V0, V1);
 
     input [4:0] ReadRegister1;
     input [4:0] ReadRegister2;
@@ -56,23 +56,37 @@ module RegisterFile(ReadRegister1, ReadRegister2, WriteRegister, WriteData, RegW
     input [31:0] WriteData;
     input RegWrite;
     input Clk;
+    input Reset;        // Lab 7: synchronous, same Reset as the pipeline registers
 
     output reg [31:0] ReadData1;
     output reg [31:0] ReadData2;
+    output [31:0] V0;   // $v0 (reg 2), for the FPGA display only
+    output [31:0] V1;   // $v1 (reg 3), for the FPGA display only
 
     // 32 registers, each 32 bits wide
     reg [31:0] Registers [0:31];
     
+    // Lab 7: $sp starts at the last word of data memory
+    // (1024 words = bytes 0..4095, last word at byte 4092 = 0xFFC)
+    localparam [31:0] SP_INIT = 32'd4092;
+
     integer i;
-    // Start every register at 0
+    // Start every register at 0, except $sp
     initial begin
         for (i=0; i<32; i=i+1)
             Registers[i] = 32'd0;
+        Registers[29] = SP_INIT;
     end
 
-    // Write to the selected register on the rising edge of the clock
+    // On Reset: clear all registers (so $v0/$v1 show (0,0)) and set $sp.
+    // Otherwise write to the selected register on the rising edge of the clock.
     always @(posedge Clk) begin
-        if (RegWrite && WriteRegister != 5'd0)
+        if (Reset) begin
+            for (i=0; i<32; i=i+1)
+                Registers[i] <= 32'd0;
+            Registers[29] <= SP_INIT;
+        end
+        else if (RegWrite && WriteRegister != 5'd0)
             Registers[WriteRegister] <= WriteData;
     end
 
@@ -81,5 +95,9 @@ module RegisterFile(ReadRegister1, ReadRegister2, WriteRegister, WriteData, RegW
         ReadData1 <= Registers[ReadRegister1];
         ReadData2 <= Registers[ReadRegister2];
     end
+
+    // Always-on read taps of $v0 and $v1 for the display (not a new write port)
+    assign V0 = Registers[2];
+    assign V1 = Registers[3];
 
 endmodule

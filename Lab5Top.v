@@ -9,8 +9,8 @@
 //               board clock with ClkDiv, runs the datapath on the slow clock,
 //               and shows the PC and the register file write data on the
 //               eight 7-segment digits with Two4DigitDisplay:
-//                 left 4 digits  (NumberB) = PC[15:0]
-//                 right 4 digits (NumberA) = WriteData[15:0]
+//                 left 4 digits  (NumberB) = $v0[15:0] = X (row)
+//                 right 4 digits (NumberA) = $v1[15:0] = Y (col)
 //               Values are shown in hex.
 //
 // Port names match Two4DigitDisplay.xdc from Lab 1 (Clk, Reset, out7,
@@ -31,7 +31,7 @@
 module Lab5Top(Clk, Reset, out7, en_out);
 
 
-    parameter DIV_VAL = 50000000;
+    parameter DIV_VAL = 10000;   // Lab 7: passed to ClkDiv, overrides its default
 
     input Clk, Reset;
     output [6:0] out7;
@@ -39,6 +39,7 @@ module Lab5Top(Clk, Reset, out7, en_out);
 
     wire SlowClk;
     (* DONT_TOUCH = "TRUE" *) wire [31:0] PC, WriteData;
+    (* DONT_TOUCH = "TRUE" *) wire [31:0] V0, V1;   // $v0 = X (row), $v1 = Y (col)
 
 
     reg [3:0] PowerOnCount = 4'd0;
@@ -80,13 +81,16 @@ module Lab5Top(Clk, Reset, out7, en_out);
         .Clk(SlowClk),
         .Reset(DatapathReset),
         .PC(PC),
-        .WriteData(WriteData)
+        .WriteData(WriteData),
+        .V0(V0),
+        .V1(V1)
     );
 
+    // Lab 7: left 4 digits = X ($v0), right 4 digits = Y ($v1)
     Two4DigitDisplay display(
         .Clk(Clk),
-        .NumberA(WriteData[15:0]),
-        .NumberB(PC[15:0]),
+        .NumberA(V1[15:0]),
+        .NumberB(V0[15:0]),
         .out7(out7),
         .en_out(en_out)
     );

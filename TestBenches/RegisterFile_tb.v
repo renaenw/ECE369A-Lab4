@@ -30,8 +30,9 @@ module RegisterFile_tb();
         .WriteRegister(WriteRegister), 
         .WriteData(WriteData), 
         .RegWrite(RegWrite), 
-        .Clk(Clk), 
-        .ReadData1(ReadData1), 
+        .Clk(Clk),
+        .Reset(1'b0),
+        .ReadData1(ReadData1),
         .ReadData2(ReadData2)
     );
 
