@@ -13,8 +13,8 @@
 //   1) Display check: whenever one digit is lit (en_out, active low), its
 //      segments (out7) are decoded back to a hex digit and compared with the
 //      matching 4 bits of the value it should show:
-//        en_out[3:0] -> WriteData[15:0]   (right 4 digits)
-//        en_out[7:4] -> PC[15:0]          (left 4 digits)
+//        en_out[3:0] -> V1[15:0] = $v1 = Y   (right 4 digits)
+//        en_out[7:4] -> V0[15:0] = $v0 = X   (left 4 digits)   (Lab 7)
 //      Every digit must be checked at least once with no mismatches.
 //   2) Trace: prints the PC and the register file write data (decimal and
 //      hex, as the board shows it) every datapath cycle that writes a register.
@@ -130,12 +130,12 @@ module Lab5Top_tb();
     always @(negedge Clk) begin
         // the display updates one board clock after the values change,
         // so only check values that have been stable for 2 clocks
-        if (uut.PC === LastPC && uut.WriteData === LastWriteData)
+        if (uut.V0 === LastPC && uut.V1 === LastWriteData)
             Stable = Stable + 1;
         else
             Stable = 0;
-        LastPC = uut.PC;
-        LastWriteData = uut.WriteData;
+        LastPC = uut.V0;
+        LastWriteData = uut.V1;
 
         OneDigitLit = 1'b0;
         Digit = 3'd0;
@@ -145,19 +145,19 @@ module Lab5Top_tb();
                 Digit = i;
             end
 
-        if (Stable >= 2 && OneDigitLit && ^{uut.PC, uut.WriteData} !== 1'bx) begin
+        if (Stable >= 2 && OneDigitLit && ^{uut.V0, uut.V1} !== 1'bx) begin
             if (Digit < 4)
-                Want = uut.WriteData[Digit * 4 +: 4];
+                Want = uut.V1[Digit * 4 +: 4];
             else
-                Want = uut.PC[(Digit - 4) * 4 +: 4];
+                Want = uut.V0[(Digit - 4) * 4 +: 4];
             Shown = Decode(out7);
 
             DigitChecks[Digit] = DigitChecks[Digit] + 1;
             if (Decode(out7) !== {1'b0, Want}) begin
                 Errors = Errors + 1;
                 if (Errors <= 10)
-                    $display("FAIL display: digit %0d shows %h (out7=%b), expected %h  [PC=%h WriteData=%h]",
-                             Digit, Shown, out7, Want, uut.PC[15:0], uut.WriteData[15:0]);
+                    $display("FAIL display: digit %0d shows %h (out7=%b), expected %h  [X=%h Y=%h]",
+                             Digit, Shown, out7, Want, uut.V0[15:0], uut.V1[15:0]);
             end
         end
     end
@@ -172,7 +172,7 @@ module Lab5Top_tb();
                 $display("FAIL display: digit %0d was never checked", i);
                 Errors = Errors + 1;
             end
-        $display("Display checks per digit (0-3 WriteData, 4-7 PC): %0d %0d %0d %0d | %0d %0d %0d %0d",
+        $display("Display checks per digit (0-3 Y = $v1, 4-7 X = $v0): %0d %0d %0d %0d | %0d %0d %0d %0d",
                  DigitChecks[0], DigitChecks[1], DigitChecks[2], DigitChecks[3],
                  DigitChecks[4], DigitChecks[5], DigitChecks[6], DigitChecks[7]);
         if (Errors == 0 && ResetErrors == 0)
